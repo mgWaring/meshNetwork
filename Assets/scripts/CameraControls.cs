@@ -9,7 +9,6 @@ public class CameraControls : MonoBehaviour
     public GameObject projectile;
 
     private CameraInput m_Controls;
-    private bool m_Charging;
     private Vector2 m_Rotation;
 
     private bool mouseLook = false;
@@ -41,8 +40,8 @@ public class CameraControls : MonoBehaviour
 
     public void Update()
     {
-        var look = m_Controls.camera.look.ReadValue<Vector2>();
-        var move = m_Controls.camera.move.ReadValue<Vector2>();
+        Vector2 look = m_Controls.camera.look.ReadValue<Vector2>();
+        Vector2 move = m_Controls.camera.move.ReadValue<Vector2>();
 
         // Update orientation first, then move. Otherwise move orientation will lag
         // behind by one frame.
@@ -56,9 +55,9 @@ public class CameraControls : MonoBehaviour
             return;
         if (direction.sqrMagnitude < 0.01)
             return;
-        var scaledMoveSpeed = moveSpeed * Time.deltaTime;
+        float scaledMoveSpeed = moveSpeed * Time.deltaTime;
 
-        var move = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z) * new Vector3(direction.x, 0, direction.y);
+        Vector3 move = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z) * new Vector3(direction.x, 0, direction.y);
         transform.position += move * scaledMoveSpeed;
     }
 
@@ -68,11 +67,9 @@ public class CameraControls : MonoBehaviour
             return;
         if (rotate.sqrMagnitude < 0.01)
             return;
-        var scaledRotateSpeed = rotateSpeed * Time.deltaTime;
+        float scaledRotateSpeed = rotateSpeed * Time.deltaTime;
         m_Rotation.y += rotate.x * scaledRotateSpeed;
         m_Rotation.x = Mathf.Clamp(m_Rotation.x - rotate.y * scaledRotateSpeed, -89, 89);
         transform.localEulerAngles = m_Rotation;
     }
-
-
 }

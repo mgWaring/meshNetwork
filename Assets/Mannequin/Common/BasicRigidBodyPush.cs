@@ -19,8 +19,8 @@ public class BasicRigidBodyPush : MonoBehaviour
 		Rigidbody body = hit.collider.attachedRigidbody;
 		if (body == null || body.isKinematic) return;
 
-		// make sure we only push desired layer(s)
-		var bodyLayerMask = 1 << body.gameObject.layer;
+        // make sure we only push desired layer(s)
+        int bodyLayerMask = 1 << body.gameObject.layer;
 		if ((bodyLayerMask & pushLayers.value) == 0) return;
 
 		// We dont want to push objects below us

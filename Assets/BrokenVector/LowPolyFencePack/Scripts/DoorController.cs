@@ -77,7 +77,7 @@ namespace BrokenVector.LowPolyFencePack
         {            
             // a little hack, to set the initial state
             currentState = InitialState;
-            var clip = GetCurrentAnimation();
+            string clip = GetCurrentAnimation();
             animator[clip].speed = 9999;
             animator.Play(clip);
         }
@@ -117,7 +117,7 @@ namespace BrokenVector.LowPolyFencePack
 
         private void Animate()
         {
-            var clip = GetCurrentAnimation();
+            string clip = GetCurrentAnimation();
             animator[clip].speed = AnimationSpeed;
             animator.Play(clip);
         }

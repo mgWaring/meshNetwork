@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Managers;
 
-public class Node : MonoBehaviour
-{
+public class Node : MonoBehaviour {
     public string niceName = "Node";
     public Guid nodeId { get; private set; } = Guid.NewGuid();
     public Transform messageMarker;
@@ -12,6 +11,7 @@ public class Node : MonoBehaviour
     public GameObject transmitAnimPrefab;
     public GameObject deleteAnimPrefab;
     public List<Node> Peers { get; private set; } = new();
+    public List<Node> blockedPeers { get; private set; } = new();
 
     private List<Message> messages = new();
     private Dictionary<Guid, float> deadMessages = new();
@@ -23,17 +23,14 @@ public class Node : MonoBehaviour
     private Tuple<Guid, float> inFlightDeleteNotice;
 
     // Start is called before the first frame update
-    void Awake()
-    {
+    void Awake() {
     }
 
-    void Start()
-    {
+    void Start() {
         NetworkStateManager.Instance.AddNode(this);
     }
 
-    void Update()
-    {
+    void Update() {
         if (messageMarker != null)
             messageMarker.localScale = new Vector3(0.2f, (messages.Count * 0.1f + 0.1f), 0.2f);
         if (deadLetterMarker != null)
@@ -52,22 +49,18 @@ public class Node : MonoBehaviour
         RemoveExpiredDeadMessages();
     }
 
-    void OnDestroy()
-    {
+    void OnDestroy() {
     }
 
-    void DoTransmit()
-    {
-        if (transmissionTarget == null)
-        {
+    void DoTransmit() {
+        if (transmissionTarget == null) {
             isTransmitting = false;
             transmissionProgress = 0.0f;
             transmissionTarget = null;
             return;
         }
 
-        if (!Peers.Contains(transmissionTarget))
-        {
+        if (!Peers.Contains(transmissionTarget)) {
             isTransmitting = false;
             transmissionProgress = 0.0f;
             transmissionTarget = null;
@@ -77,12 +70,9 @@ public class Node : MonoBehaviour
         transmissionProgress += Time.deltaTime;
         if (transmissionProgress < NetworkStateManager.Instance.TransmissionTime) return;
 
-        if (inFlightDeleteNotice != null)
-        {
+        if (inFlightDeleteNotice != null) {
             transmissionTarget.ReceiveDeleteNotice(inFlightDeleteNotice.Item1, inFlightDeleteNotice.Item2, this);
-        }
-        else
-        {
+        } else {
             transmissionTarget.ReceiveMessage(inFlightMessage, this);
         }
 
@@ -92,58 +82,48 @@ public class Node : MonoBehaviour
         inFlightDeleteNotice = null;
     }
 
-    private void FindTransmissionTarget()
-    {
-            bool foundMessageTarget = SetMessageTarget(Peers);
-            if (foundMessageTarget) {
-                Instantiate(transmitAnimPrefab, transform.position, Quaternion.identity);
-                TransmitAnim anim = transmitAnimPrefab.GetComponent<TransmitAnim>();
-                anim?.SetDestination(transmissionTarget.transform.position);
-                isTransmitting = true;
-                return;
-            }
-            bool foundDeadMessageTarget = SetDeadMessageTarget(Peers);
-            if (foundDeadMessageTarget) {  
-                Instantiate(deleteAnimPrefab, transform.position, Quaternion.identity);
-                TransmitAnim anim = deleteAnimPrefab.GetComponent<TransmitAnim>();
-                anim?.SetDestination(transmissionTarget.transform.position);
-                isTransmitting = true;
-            }
+    private void FindTransmissionTarget() {
+        bool foundMessageTarget = SetMessageTarget(Peers);
+        if (foundMessageTarget) {
+            Instantiate(transmitAnimPrefab, transform.position, Quaternion.identity);
+            TransmitAnim anim = transmitAnimPrefab.GetComponent<TransmitAnim>();
+            anim?.SetDestination(transmissionTarget.transform.position);
+            isTransmitting = true;
+            return;
+        }
+        bool foundDeadMessageTarget = SetDeadMessageTarget(Peers);
+        if (foundDeadMessageTarget) {
+            Instantiate(deleteAnimPrefab, transform.position, Quaternion.identity);
+            TransmitAnim anim = deleteAnimPrefab.GetComponent<TransmitAnim>();
+            anim?.SetDestination(transmissionTarget.transform.position);
+            isTransmitting = true;
+        }
     }
 
-    public bool NeedMessage(Guid uID)
-    {
-        foreach (Message message in messages)
-        {
-            if (message.uID == uID)
-            {
+    public bool NeedMessage(Guid uID) {
+        foreach (Message message in messages) {
+            if (message.uID == uID) {
                 return false;
             }
         }
         return true;
     }
-    public bool NeedDeadMessage(Guid uID)
-    {
-        foreach (KeyValuePair<Guid, float> entry in deadMessages)
-        {
-            if (entry.Key == uID)
-            {
+    public bool NeedDeadMessage(Guid uID) {
+        foreach (KeyValuePair<Guid, float> entry in deadMessages) {
+            if (entry.Key == uID) {
                 return false;
             }
         }
         return true;
     }
-    public void ReceiveMessage(Message message, Node sender)
-    {
+    public void ReceiveMessage(Message message, Node sender) {
         Debug.Log($"Node {niceName} ReceiveMessage {message.body} from {sender.niceName}");
         message.recentHops++;
 
-        if (message.destination == this.nodeId)
-        {
+        if (message.destination == this.nodeId) {
             sender.ReceiveDeleteNotice(message.uID, Time.time + NetworkStateManager.Instance.deathNoteTTL, this);
             Destination destination = GetComponentInParent<Destination>();
-            if (destination != null)
-            {
+            if (destination != null) {
                 Debug.Log($"Node {niceName} is a destination node setting text {message.body}");
                 destination.SetText(message.body);
             }
@@ -152,34 +132,26 @@ public class Node : MonoBehaviour
         messages.Add(message);
     }
 
-    public void ReceiveMessage(Message message)
-    {
+    public void ReceiveMessage(Message message) {
         Debug.Log($"Node {niceName} had a sender give them a message {message.body}");
         messages.Add(message);
     }
 
-    public void ReceiveDeleteNotice(Guid id, float ttl, Node sender)
-    {
+    public void ReceiveDeleteNotice(Guid id, float ttl, Node sender) {
         Debug.Log($"Node {niceName} ReceiveDeleteNotice {id} from {sender.niceName}");
         deadMessages.Add(id, ttl);
     }
 
-    private bool SetMessageTarget(List<Node> peers)
-    {
-        foreach (Node peer in peers)
-        {
-            foreach (Message message in messages)
-            {
-                if (peer.NeedMessage(message.uID))
-                {
+    private bool SetMessageTarget(List<Node> peers) {
+        foreach (Node peer in peers) {
+            foreach (Message message in messages) {
+                if (peer.NeedMessage(message.uID)) {
                     Debug.Log($"Node {niceName} sending an animation blip to {peer.niceName}");
 
                     inFlightMessage = message;
                     transmissionTarget = peer;
                     return true;
-                }
-                else
-                {
+                } else {
                     Debug.Log($"Node {niceName} does not need to send a message to {peer.niceName}");
                 }
             }
@@ -188,22 +160,16 @@ public class Node : MonoBehaviour
         return false;
     }
 
-    private bool SetDeadMessageTarget(List<Node> peers)
-    {
-        foreach (Node peer in peers)
-        {
-            foreach (KeyValuePair<Guid, float> entry in deadMessages)
-            {
-                if (peer.NeedDeadMessage(entry.Key))
-                {
+    private bool SetDeadMessageTarget(List<Node> peers) {
+        foreach (Node peer in peers) {
+            foreach (KeyValuePair<Guid, float> entry in deadMessages) {
+                if (peer.NeedDeadMessage(entry.Key)) {
                     Debug.Log($"Node {niceName} sending a delete animation to {peer.niceName}");
 
                     inFlightDeleteNotice = new(entry.Key, entry.Value);
                     transmissionTarget = peer;
                     return true;
-                }
-                else
-                {
+                } else {
                     Debug.Log($"Node {niceName} does not need to send a dead message to {peer.niceName}");
                 }
             }
@@ -212,59 +178,46 @@ public class Node : MonoBehaviour
         return false;
     }
 
-    private void RemoveMessagesListedInDeadMessages()
-    {
+    private void RemoveMessagesListedInDeadMessages() {
         List<int> toDelete = new();
         //find the messages to delete
-        foreach (KeyValuePair<Guid, float> entry in deadMessages)
-        {
-            for (int i = 0; i < messages.Count; i++)
-            {
-                if (messages[i].uID == entry.Key)
-                {
+        foreach (KeyValuePair<Guid, float> entry in deadMessages) {
+            for (int i = 0; i < messages.Count; i++) {
+                if (messages[i].uID == entry.Key) {
                     Debug.Log($"Node {niceName} removing mesage listed in dead messages {messages[i].body}");
                     toDelete.Add(i);
                 }
             }
         }
         //now remove the messages
-        foreach (int index in toDelete)
-        {
+        foreach (int index in toDelete) {
             messages.RemoveAt(index);
         }
     }
 
-    private void IdentifyExpiredMessages()
-    {
-        for (int i = 0; i < messages.Count; i++)
-        {
-            if (Time.time >= messages[i].ttl && !deadMessages.ContainsKey(messages[i].uID))
-            {
+    private void IdentifyExpiredMessages() {
+        for (int i = 0; i < messages.Count; i++) {
+            if (Time.time >= messages[i].ttl && !deadMessages.ContainsKey(messages[i].uID)) {
                 Debug.Log($"Node {niceName} adding expired message to the queue {messages[i].body}");
                 deadMessages.Add(messages[i].uID, Time.time + NetworkStateManager.Instance.deathNoteTTL);
             }
         }
     }
 
-    private void RemoveExpiredDeadMessages()
-    {
+    private void RemoveExpiredDeadMessages() {
         List<Guid> toDelete = new();
-        foreach (KeyValuePair<Guid, float> entry in deadMessages)
-        {
-            if (Time.time >= entry.Value)
-            {
+        foreach (KeyValuePair<Guid, float> entry in deadMessages) {
+            if (Time.time >= entry.Value) {
                 Debug.Log($"Node {niceName} removing dead message {entry.Key}");
                 toDelete.Add(entry.Key);
             }
         }
-        foreach (Guid key in toDelete)
-        {
+        foreach (Guid key in toDelete) {
             deadMessages.Remove(key);
         }
     }
 
-    private List<Node> FindPeers()
-    {
+    private List<Node> FindPeers() {
         Collider[] colliders = Physics.OverlapSphere(
             transform.position,
             NetworkStateManager.Instance.nodeConnectionRange,
@@ -272,23 +225,31 @@ public class Node : MonoBehaviour
         );
         List<Node> peers = new();
 
-        foreach (Collider collider in colliders)
-        {
+        foreach (Collider collider in colliders) {
             if (collider.isTrigger) continue;
-            if (collider.gameObject != gameObject)
-            {
+            if (collider.gameObject != gameObject) {
                 Node node = collider.gameObject.GetComponent<Node>();
-                if (node != null)
-                {
+                if (node != null && CanSeeNode(node)) {
                     peers.Add(node);
+                    continue;
                 }
+                blockedPeers.Add(node);
             }
         }
         string peerNames = "";
-        foreach (Node peer in peers)
-        {
+        foreach (Node peer in peers) {
             peerNames += peer.niceName + ", ";
         }
         return peers;
+    }
+
+    private bool CanSeeNode(Node node) {
+        RaycastHit hit;
+        if (Physics.Linecast(transform.position, node.transform.position, out hit)) {
+            //check that the hit is not on the ignore raycast layer
+            if(hit.collider.gameObject.layer != 2)
+            if (hit.collider.gameObject == node.gameObject) return true;
+        }
+        return false;
     }
 }

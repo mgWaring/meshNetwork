@@ -14,12 +14,12 @@ public class SimpleController_UsingState : MonoBehaviour
 
     public void Update()
     {
-        var gamepad = Gamepad.current;
+        Gamepad gamepad = Gamepad.current;
         if (gamepad == null)
             return;
 
-        var leftStick = gamepad.leftStick.ReadValue();
-        var rightStick = gamepad.rightStick.ReadValue();
+        Vector2 leftStick = gamepad.leftStick.ReadValue();
+        Vector2 rightStick = gamepad.rightStick.ReadValue();
 
         Look(rightStick);
         Move(leftStick);
@@ -45,10 +45,10 @@ public class SimpleController_UsingState : MonoBehaviour
     {
         if (direction.sqrMagnitude < 0.01)
             return;
-        var scaledMoveSpeed = moveSpeed * Time.deltaTime;
+        float scaledMoveSpeed = moveSpeed * Time.deltaTime;
         // For simplicity's sake, we just keep movement in a single plane here. Rotate
         // direction according to world Y rotation of player.
-        var move = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(direction.x, 0, direction.y);
+        Vector3 move = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(direction.x, 0, direction.y);
         transform.position += move * scaledMoveSpeed;
     }
 
@@ -56,7 +56,7 @@ public class SimpleController_UsingState : MonoBehaviour
     {
         if (rotate.sqrMagnitude < 0.01)
             return;
-        var scaledRotateSpeed = rotateSpeed * Time.deltaTime;
+        float scaledRotateSpeed = rotateSpeed * Time.deltaTime;
         m_Rotation.y += rotate.x * scaledRotateSpeed;
         m_Rotation.x = Mathf.Clamp(m_Rotation.x - rotate.y * scaledRotateSpeed, -89, 89);
         transform.localEulerAngles = m_Rotation;
@@ -64,8 +64,8 @@ public class SimpleController_UsingState : MonoBehaviour
 
     private void Fire()
     {
-        var transform = this.transform;
-        var newProjectile = Instantiate(projectile);
+        Transform transform = this.transform;
+        GameObject newProjectile = Instantiate(projectile);
         newProjectile.transform.position = transform.position + transform.forward * 0.6f;
         newProjectile.transform.rotation = transform.rotation;
         const int size = 1;

@@ -62,8 +62,8 @@ public class SimpleController_UsingActionAsset : MonoBehaviour
 
     public void Update()
     {
-        var look = m_Controls.gameplay.look.ReadValue<Vector2>();
-        var move = m_Controls.gameplay.move.ReadValue<Vector2>();
+        Vector2 look = m_Controls.gameplay.look.ReadValue<Vector2>();
+        Vector2 move = m_Controls.gameplay.move.ReadValue<Vector2>();
 
         // Update orientation first, then move. Otherwise move orientation will lag
         // behind by one frame.
@@ -75,10 +75,10 @@ public class SimpleController_UsingActionAsset : MonoBehaviour
     {
         if (direction.sqrMagnitude < 0.01)
             return;
-        var scaledMoveSpeed = moveSpeed * Time.deltaTime;
+        float scaledMoveSpeed = moveSpeed * Time.deltaTime;
         // For simplicity's sake, we just keep movement in a single plane here. Rotate
         // direction according to world Y rotation of player.
-        var move = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(direction.x, 0, direction.y);
+        Vector3 move = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(direction.x, 0, direction.y);
         transform.position += move * scaledMoveSpeed;
     }
 
@@ -86,7 +86,7 @@ public class SimpleController_UsingActionAsset : MonoBehaviour
     {
         if (rotate.sqrMagnitude < 0.01)
             return;
-        var scaledRotateSpeed = rotateSpeed * Time.deltaTime;
+        float scaledRotateSpeed = rotateSpeed * Time.deltaTime;
         m_Rotation.y += rotate.x * scaledRotateSpeed;
         m_Rotation.x = Mathf.Clamp(m_Rotation.x - rotate.y * scaledRotateSpeed, -89, 89);
         transform.localEulerAngles = m_Rotation;
@@ -94,7 +94,7 @@ public class SimpleController_UsingActionAsset : MonoBehaviour
 
     private IEnumerator BurstFire(int burstAmount)
     {
-        for (var i = 0; i < burstAmount; ++i)
+        for (int i = 0; i < burstAmount; ++i)
         {
             Fire();
             yield return new WaitForSeconds(0.1f);
@@ -103,8 +103,8 @@ public class SimpleController_UsingActionAsset : MonoBehaviour
 
     private void Fire()
     {
-        var transform = this.transform;
-        var newProjectile = Instantiate(projectile);
+        Transform transform = this.transform;
+        GameObject newProjectile = Instantiate(projectile);
         newProjectile.transform.position = transform.position + transform.forward * 0.6f;
         newProjectile.transform.rotation = transform.rotation;
         const int size = 1;
