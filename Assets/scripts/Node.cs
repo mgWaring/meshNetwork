@@ -272,7 +272,6 @@ public class Node : MonoBehaviour
 
     private void FindPeers()
     {
-        Debug.Log($"Node {niceName} finding peers");
         Collider[] colliders = Physics.OverlapSphere(
             transform.position,
             NetworkStateManager.Instance.nodeConnectionRange,
@@ -296,12 +295,6 @@ public class Node : MonoBehaviour
             }
         }
 
-        string peerNames = "";
-        foreach (Node peer in peers)
-        {
-            peerNames += peer.niceName + ", ";
-        }
-
         Peers = peers;
         BlockedPeers = blockedPeers;
 
@@ -311,22 +304,28 @@ public class Node : MonoBehaviour
 
     private bool CanSeeNode(Node node)
     {
-        RaycastHit hit;
-        return FindBlockages(transform.position, node);
+        Debug.LogWarning($"Node {niceName} checking if it can see {node.niceName}");
+        return CanSeeFrom(transform.position, node, Vector3.Distance(transform.position, node.transform.position));
     }
 
-    private bool FindBlockages(Vector3 origin, Node target)
+    private bool CanSeeFrom(Vector3 origin, Node target, float maxDistance = 10f)
     {
+        if(maxDistance < 0.1f) return false;
         RaycastHit hit;
-        if (Physics.Linecast(origin, target.transform.position, out hit))
+        //get direction from origin to target
+        Vector3 direction = target.transform.position - origin;
+        if (Physics.Raycast(origin, direction, out hit, maxDistance))
         {
-            //check that the hit is not another Node
             Node hitNode = hit.collider.gameObject.GetComponentInChildren<Node>();
-            if (hitNode != null)
-            {
-                if (hitNode == target) return true;
-                return FindBlockages(hit.transform.position, target);
-            }
+            // hit has no node, it's a blocker
+            if (hitNode == null) return false;
+
+            Debug.LogWarning($"Node {niceName} hit {hitNode.niceName} when trying to see {target.niceName}");
+            if (hitNode == target) return true;
+
+            Debug.LogWarning($"Node {niceName} is ignoring {hitNode.niceName} when trying to see {target.niceName}");
+            return false;
+            // return CanSeeFrom(hit.transform.position, target, Vector3.Distance(hit.transform.position, target.transform.position));
         }
         return false;
     }
