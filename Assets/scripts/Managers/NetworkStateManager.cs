@@ -101,7 +101,7 @@ namespace Managers {
                 foreach (Node peer in node.Peers) {
                     DrawLineIfNotDrawn(node, peer, connectedPairs, connectionRenderers, "connected");
                 }
-                foreach (Node peer in node.blockedPeers) {
+                foreach (Node peer in node.BlockedPeers) {
                     DrawLineIfNotDrawn(node, peer, blockedPairs, blockageRenderers, "blocked");
                 }
             }

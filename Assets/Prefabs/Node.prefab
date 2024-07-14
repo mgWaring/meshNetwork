@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: 2095034820623512065}
   - component: {fileID: 560310562274091521}
   - component: {fileID: 7186225182206887995}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Programattic Node
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -326,6 +326,8 @@ MonoBehaviour:
   deadLetterMarker: {fileID: 168819234386097630}
   transmitAnimPrefab: {fileID: 7192547188343298460, guid: a0f9c0a00fcdfac41825dc8ccc9ab461, type: 3}
   deleteAnimPrefab: {fileID: 7192547188343298460, guid: dd61fa366f8cb774b971a839964ed0b6, type: 3}
+  arrayPeers: []
+  arrayBlockedPeers: []
 --- !u!1 &1183105051633784111
 GameObject:
   m_ObjectHideFlags: 0
