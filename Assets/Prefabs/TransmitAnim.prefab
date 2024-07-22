@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6518095054176217497}
   - component: {fileID: 1877944203562689373}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 7993357157098532664}
   - component: {fileID: 8704799746673997024}
   - component: {fileID: 2021054872903749433}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: blip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ GameObject:
   m_Component:
   - component: {fileID: 57738033256601178}
   - component: {fileID: 8354488910488475670}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: TransmitAnim
   m_TagString: Untagged
   m_Icon: {fileID: 0}

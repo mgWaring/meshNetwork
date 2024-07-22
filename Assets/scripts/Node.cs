@@ -304,7 +304,6 @@ public class Node : MonoBehaviour
 
     private bool CanSeeNode(Node node)
     {
-        Debug.LogWarning($"Node {niceName} checking if it can see {node.niceName}");
         return CanSeeFrom(transform.position, node, Vector3.Distance(transform.position, node.transform.position));
     }
 
@@ -320,12 +319,11 @@ public class Node : MonoBehaviour
             // hit has no node, it's a blocker
             if (hitNode == null) return false;
 
-            Debug.LogWarning($"Node {niceName} hit {hitNode.niceName} when trying to see {target.niceName}");
+            //hit is the target, woohoo
             if (hitNode == target) return true;
 
-            Debug.LogWarning($"Node {niceName} is ignoring {hitNode.niceName} when trying to see {target.niceName}");
-            return false;
-            // return CanSeeFrom(hit.transform.position, target, Vector3.Distance(hit.transform.position, target.transform.position));
+            //hit is another node, so we ignore it and carry on checking
+            return true;
         }
         return false;
     }
