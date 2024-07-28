@@ -35,7 +35,6 @@ public class CameraControls : MonoBehaviour
     {
         if(!mouseLook)
             return;
-        Debug.Log("Act");
     }
 
     public void Update()

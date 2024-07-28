@@ -37,7 +37,6 @@ public class Traveller : MonoBehaviour
 
     public void BeginTravel(Transform _destination)
     {
-        Debug.LogWarning($"Travelling to {_destination.position}");
         destination = _destination;
         agent.SetDestination(destination.position);
     }
@@ -47,9 +46,27 @@ public class Traveller : MonoBehaviour
         agent.SetDestination(position);
     }
 
+    public void HaltTravel()
+    {
+        destination = null;
+        agent.ResetPath();
+    }
+
     public void Update()
     {
+        if (destination == null) return;
         if (leader == null) return;
+        if(Vector3.Distance(transform.position, destination.position) < 1)
+        {
+            HaltTravel();
+            foreach (Transform teammate in teammates)
+            {
+                Traveller teammateAgent = teammate.GetComponent<Traveller>();
+                if (teammateAgent == null) continue;
+                teammateAgent.HaltTravel();
+            }
+            return;
+        }
 
         int iterator = 0;
         int factor = 1;

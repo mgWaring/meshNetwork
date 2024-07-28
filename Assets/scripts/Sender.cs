@@ -30,6 +30,6 @@ public class Sender : MonoBehaviour
             ttl = Time.time + NetworkStateManager.Instance.messageTTL
         };
         myNode.ReceiveMessage(message);
-        Debug.Log($"Sending message: {body} ({message.ttl}) to {destinationID}");
+        NetworkStateManager.Instance.UpdateUniqueMessageCount(NetworkStateManager.Instance.uniqueMessageCount + 1);
     }
 }

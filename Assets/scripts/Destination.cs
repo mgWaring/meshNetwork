@@ -18,7 +18,7 @@ public class Destination : MonoBehaviour
 
     public void SetText(string message)
     {
-        Debug.Log($"Setting text: {message}");
+        NetworkStateManager.Instance.UpdateDeliveriesCount(NetworkStateManager.Instance.deliveriesCount + 1);
         text.text = message;
     }
 }

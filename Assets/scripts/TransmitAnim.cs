@@ -12,7 +12,6 @@ public class TransmitAnim : MonoBehaviour
     void Start()
     {
         lifetime = NetworkStateManager.Instance.tickRate;
-        Debug.Log("hello from TransmitAnim!");
     }
     void Update()
     {
@@ -31,7 +30,6 @@ public class TransmitAnim : MonoBehaviour
     public void SetDestination(Vector3 _target)
     {
         target = _target;
-        Debug.Log($"Moving towards {target.x}, {target.y}, {target.z}");
         distance = Vector3.Distance(transform.position, target);
     }
 }

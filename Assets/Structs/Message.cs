@@ -20,4 +20,9 @@ public struct Message
         this.ttl = ttl;
         recentHops = 0;
     }
+
+    public string ToString()
+    {
+        return $"Message {uID} to {destination} with body {body}, ttl {ttl} and recentHops {recentHops}";
+    }
 }
